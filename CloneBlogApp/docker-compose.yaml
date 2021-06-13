@@ -1,0 +1,63 @@
+version: "3"
+
+services:
+  client:
+    container_name: client
+    build: ./client
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client:/client
+      - /client/node_modules
+    depends_on:
+      - server
+    networks:
+      - blog-app
+
+  server:
+    container_name: server
+    build: ./server
+    restart: unless-stopped
+    env_file: ./server/.env
+    environment:
+      - MONGO_USERNAME=sa
+      - MONGO_PASSWORD=sa123456
+      - MONGO_HOSTNAME=db
+      - MONGO_PORT=27017
+      - MONGO_DB=blogapp
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./server:/server
+      - /server/node_modules
+    depends_on:
+      - db
+    networks:
+      - blog-app
+
+  db:
+    image: mongo
+    container_name: db
+    ports:
+      - 27017:27017
+    restart: unless-stopped
+    env_file: ./server/.env
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=sa
+      - MONGO_INITDB_ROOT_PASSWORD=sa123456
+    networks:
+      - blog-app
+    volumes:
+      - mongo-data:/data/db
+
+networks:
+  blog-app:
+    driver: bridge
+
+volumes:
+  mongo-data:
+    driver: local
+
+    # mongo-data:/data/db
+    # mongo-data:/data/frontend
