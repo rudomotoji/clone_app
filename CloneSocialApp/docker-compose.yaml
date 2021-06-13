@@ -1,0 +1,76 @@
+version: "3"
+
+services:
+  react-app:
+    container_name: client
+    build: ./frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/frontend
+      - /frontend/node_modules
+    depends_on:
+      - api-server
+      - socket
+    networks:
+      - app-network
+
+  api-server:
+    container_name: server
+    build: ./server
+    restart: unless-stopped
+    env_file: ./server/.env
+    environment:
+      - MONGO_USERNAME=sa
+      - MONGO_PASSWORD=sa123456
+      - MONGO_HOSTNAME=db
+      - MONGO_PORT=27017
+      - MONGO_DB=sharkinfo
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./server:/server
+      - /server/node_modules
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  socket:
+    container_name: socket
+    build: ./socket
+    restart: unless-stopped
+    ports:
+      - "8900:8900"
+    volumes:
+      - ./socket:/socket
+      - /socket/node_modules
+    networks:
+      - app-network
+
+  db:
+    image: mongo
+    container_name: db
+    ports:
+      - 27017:27017
+    restart: unless-stopped
+    env_file: ./server/.env
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=sa
+      - MONGO_INITDB_ROOT_PASSWORD=sa123456
+    networks:
+      - app-network
+    volumes:
+      - mongo-data:/data/db
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+    driver: local
+
+    # mongo-data:/data/db
+    # mongo-data:/data/frontend

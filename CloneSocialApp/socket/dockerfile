@@ -1,0 +1,15 @@
+FROM node:14-alpine
+
+# Create app directory
+WORKDIR /socket
+
+COPY ./package*.json /socket/
+
+RUN npm install
+
+# Bundle app source
+COPY . /socket/
+
+EXPOSE 8900
+
+CMD ["npm", "start"]
