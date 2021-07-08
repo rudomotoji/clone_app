@@ -2,7 +2,6 @@
 
 $column-header-height: 36px;
 $column-footer-height: 36px;
-$column-border-radius: 8px;
 
 $list-bg-color: #ebecf0;
 
@@ -38,7 +37,7 @@ $list-bg-color: #ebecf0;
     border-bottom-left-radius: $column-border-radius;
     border-bottom-right-radius: $column-border-radius;
   }
-  ul.task-list {
+  ul.card-list {
     list-style-type: none;
     margin: 0;
     max-height: calc(
