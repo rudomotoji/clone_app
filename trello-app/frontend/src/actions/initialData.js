@@ -9,9 +9,9 @@ export const initialData = {
           boardId: 'board-1',
           title: 'Todo',
           cardOrder: [
-            'card-3',
-            'card-2',
             'card-1',
+            'card-2',
+            'card-3',
             'card-4',
             'card-5',
             'card-6',
