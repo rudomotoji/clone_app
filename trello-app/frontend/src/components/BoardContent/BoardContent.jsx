@@ -89,6 +89,27 @@ function BoardContent() {
 
   const toggleOpenNewColumnForm = () => setOpenColumnForm(!openNewColumnForm);
 
+  const onUpdateColumn = (newColumnToUpdate) => {
+    const columnIdUpdate = newColumnToUpdate.id;
+    let newColumns = [...columns];
+    const columnIndexUpdate = newColumns.findIndex(
+      (i) => i.id === columnIdUpdate
+    );
+
+    if (newColumnToUpdate._destroy) {
+      newColumns.splice(columnIndexUpdate, 1);
+    } else {
+      newColumns.splice(columnIndexUpdate, 1, newColumnToUpdate);
+    }
+
+    let newBoard = { ...board };
+    newBoard.columnOrder = newColumns.map((c) => c.id);
+    newBoard.columns = newColumns;
+
+    setColumns(newColumns);
+    setBoard(newBoard);
+  };
+
   const addNewColumn = () => {
     if (!newColumnTitle) {
       newColumnInputRef.current.focus();
@@ -131,7 +152,11 @@ function BoardContent() {
       >
         {columns.map((column, index) => (
           <Draggable key={index}>
-            <Column column={column} onCardDrop={onCardDrop} />
+            <Column
+              column={column}
+              onCardDrop={onCardDrop}
+              onUpdateColumn={onUpdateColumn}
+            />
           </Draggable>
         ))}
       </Container>
@@ -157,7 +182,7 @@ function BoardContent() {
                 ref={newColumnInputRef}
                 value={newColumnTitle}
                 onChange={onNewColumnTitleChange}
-                onKeyDown={(event) => event.keyyy === 'Enter' && addNewColumn()}
+                onKeyDown={(event) => event.key === 'Enter' && addNewColumn()}
               />
               <Button onClick={addNewColumn} variant='success' size='sm'>
                 Add column
