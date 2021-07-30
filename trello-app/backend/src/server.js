@@ -2,6 +2,7 @@ import express from 'express';
 
 import { connectDB } from '@/config/mongodb';
 import { env } from '@/config/environment';
+import {apiV1} from '@/routes/v1'
 
 connectDB()
   .then(() => console.log('connected success to db'))
@@ -14,9 +15,9 @@ connectDB()
 const bootServer = () => {
   const app = express();
 
-  app.get('/test', (req, res) => {
-    res.end('<h1>hollo</h1>');
-  });
+  app.use(express.json())
+
+app.use('/v1',apiV1)
 
   app.listen(env.APP_PORT, env.APP_HOST, () => {
     console.log('running');
