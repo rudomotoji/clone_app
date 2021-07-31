@@ -20,9 +20,10 @@ const createNew = async (data) => {
     const result = await getDB()
       .collection(boardCollectionName)
       .insertOne(value);
-    return result.ops[0];
+    console.log(result);
+    return result;
   } catch (error) {
-     throw new Error(error)
+    throw new Error(error);
   }
 };
 
