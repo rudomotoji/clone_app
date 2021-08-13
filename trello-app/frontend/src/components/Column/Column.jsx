@@ -6,7 +6,7 @@ import { cloneDeep } from 'lodash';
 import { Dropdown, Form, Button } from 'react-bootstrap';
 
 import { mapOrder } from 'utils/sort';
-import { MODAL_ACTION_CONFIRM, MODAL_ACTION_CLOSE } from 'utils/constants';
+import { MODAL_ACTION_CONFIRM } from 'utils/constants';
 import {
   saveContentAfterPressEnter,
   selectAllInLineText
@@ -16,8 +16,10 @@ import Card from 'components/Card/Card.jsx';
 import ConfirmModal from 'components/Common/Confirmmodal';
 import { useRef, useState, useEffect } from 'react';
 
+import { createNewCard, updateColumn } from 'actions/apis';
+
 function Column(props) {
-  const { column, onCardDrop, onUpdateColumn } = props;
+  const { column, onCardDrop, onUpdateColumnState } = props;
   const cards = mapOrder(column.cards, column.cardOrder, '_id');
 
   const [confirmRemove, setConfirmRemove] = useState(false);
@@ -42,19 +44,29 @@ function Column(props) {
     }
   }, [openNewCardForm]);
 
+  //remove column
   const onConfirmAction = (type) => {
     if (type === MODAL_ACTION_CONFIRM) {
       const newColumn = { ...column, _destroy: true };
-      onUpdateColumn(newColumn);
+
+      updateColumn(newColumn._id, newColumn).then((updatedColumn) => {
+        onUpdateColumnState(updatedColumn);
+      });
     }
     toggleShowConfirmModal();
   };
 
   const toggleShowConfirmModal = () => setConfirmRemove(!confirmRemove);
 
+  //update title column
   const handleColumnTitleChangeBlur = () => {
     const newColumn = { ...column, title: columnTitle };
-    onUpdateColumn(newColumn);
+    if (columnTitle !== column.title) {
+      updateColumn(newColumn._id, newColumn).then((updatedColumn) => {
+        updatedColumn.cards = newColumn.cards;
+        onUpdateColumnState(updatedColumn);
+      });
+    }
   };
 
   const addNewCard = () => {
@@ -64,20 +76,20 @@ function Column(props) {
     }
 
     const newCardToAdd = {
-      id: Math.random().toString(36).substr(2, 5), //random 5 characters and remove
       boardId: column.boardId,
       columnId: column._id,
-      title: newCardTitle.trim(),
-      cover: null
+      title: newCardTitle.trim()
     };
 
-    let newColumn = cloneDeep(column);
-    newColumn.cards.push(newCardToAdd);
-    newColumn.cardOrder.push(newCardToAdd._id);
+    createNewCard(newCardToAdd).then((card) => {
+      let newColumn = cloneDeep(column);
+      newColumn.cards.push(card);
+      newColumn.cardOrder.push(card._id);
 
-    onUpdateColumn(newColumn);
-    setNewCardTitle('');
-    toggleOpenNewCardForm();
+      onUpdateColumnState(newColumn);
+      setNewCardTitle('');
+      toggleOpenNewCardForm();
+    });
   };
 
   return (
